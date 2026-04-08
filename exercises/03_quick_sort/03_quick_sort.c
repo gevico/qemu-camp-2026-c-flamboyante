@@ -12,9 +12,52 @@ typedef struct {
 
 Student students[MAX_STUDENTS];
 
-void quick_sort(int left, int right) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+void swap(Student *a, Student *b)
+{
+    Student tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void print_students(int l, int r)
+{
+    for(int i = l; i <= r; i++)
+    {
+        printf("%s %d\n", students[i].name, students[i].score);
+    }
+}
+
+int sort(int l, int r)
+{
+    Student pivot = students[l];
+    int i = l;
+    int j = r;
+
+    while (i < j) {
+        while (i < j && students[j].score < pivot.score) {
+            j--;
+        }
+
+        while (i < j && students[i].score >= pivot.score) {
+            i++;
+        }
+
+        if (i < j) {
+            swap(&students[i], &students[j]);
+        }
+    }
+
+    swap(&students[l], &students[i]);
+    return i;
+}
+
+void quick_sort(int l, int r) {
+    if (l >= r)
+        return;
+
+    int p = sort(l, r);
+    quick_sort(l, p - 1);
+    quick_sort(p + 1, r);
 }
 
 int main(void) {
