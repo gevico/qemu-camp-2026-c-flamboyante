@@ -55,6 +55,7 @@ int main() {
         word = strtok(NULL, " ");
     }
   }
+  fclose(file);
 
   free_hash_table(table);
   return 0;

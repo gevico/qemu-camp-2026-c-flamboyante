@@ -23,8 +23,9 @@ char to_lower(char c) { return tolower(c); }
 
 // 添加单词到哈希表
 void add_word(WordCount **hash_table, const char *word) {
-    // TODO: 在这里添加你的代码
-    WordCount *current = hash_table[hash(word)];
+    // TODO: 在这里添加你的代码  
+    unsigned int index = hash(word);
+    WordCount *current = hash_table[index];
     while (current != NULL) {
         if (strcmp(current->word, word) == 0) {
             current->count++;
@@ -33,10 +34,13 @@ void add_word(WordCount **hash_table, const char *word) {
         current = current->next;
     }
     WordCount *new_word = malloc(sizeof(WordCount));
+    if (!new_word) {
+      return;
+    }
     strcpy(new_word->word, word);
     new_word->count = 1;
-    new_word->next = hash_table[hash(word)];
-    hash_table[hash(word)] = new_word;
+    new_word->next = hash_table[index];
+    hash_table[index] = new_word;
 
 }
 

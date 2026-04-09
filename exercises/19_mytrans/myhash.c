@@ -50,54 +50,42 @@ void free_hash_table(HashTable *table) {
 
 // 插入键值对
 int hash_table_insert(HashTable *table, const char *key, const char *value) {
-  if (!table || !key || !value)
+  if (!table || !key || !value) {
     return 0;
-
-  unsigned long hash = hash_function(key) % HASH_TABLE_SIZE;
-  HashNode *node = table->buckets[hash];
-  if(node == NULL)
-  {
-    HashNode *new_node = malloc(sizeof(HashNode));
-    if(!(new_node))
-      return 0;
-
-    if(!(new_node->key = strdup(key)))
-      return 0;
-    if(!(new_node->value = strdup(value)))
-      return 0;
-    new_node->next = NULL;
-    table->buckets[hash] = new_node;
-    return 1;
   }
 
-    // TODO: 在这里添加你的代码
-  while (node->next != NULL)
-  {
-    if(strcmp(node->key, key) == 0)
-    {
-      printf("键已存在\n");
+  unsigned long hash = hash_function(key) % HASH_TABLE_SIZE;
+  HashNode *head = table->buckets[hash];
+  HashNode *node = head;
+
+  while (node != NULL) {
+    if (strcmp(node->key, key) == 0) {
       return 0;
     }
     node = node->next;
   }
 
-    if(strcmp(node->key, key) == 0)
-    {
-      printf("键已存在\n");
-      return 0;
-    }
-  
+  HashNode *new_node = malloc(sizeof(HashNode));
+  if (!new_node) {
+    return 0;
+  }
 
-    HashNode *new_node = malloc(sizeof(HashNode));
-  if(!(new_node))
+  new_node->key = strdup(key);
+  if (!new_node->key) {
+    free(new_node);
     return 0;
+  }
 
-  if(!(new_node->key = strdup(key)))
+  new_node->value = strdup(value);
+  if (!new_node->value) {
+    // flam: 分配失败时完整回收，避免插入路径泄漏。
+    free(new_node->key);
+    free(new_node);
     return 0;
-  if(!(new_node->value = strdup(value)))
-    return 0;
-  new_node->next = NULL;
-  node->next = new_node;
+  }
+
+  new_node->next = head;
+  table->buckets[hash] = new_node;
   return 1;
 }
 

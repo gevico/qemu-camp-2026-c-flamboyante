@@ -39,8 +39,6 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
     memcpy(*new_str, second_slash_begin, second_slash_end - second_slash_begin);
     (*new_str)[second_slash_end - second_slash_begin] = '\0';
     
-    printf("old_str = %s, new_str = %s!\n", *old_str, *new_str);
-
     return 0;
 }
 
