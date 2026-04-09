@@ -8,7 +8,16 @@
 
 void trim(char *str) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+     
+    if(!str)
+      return;
+    while (str && isspace(*str))
+      str++;
+
+    char *end = str + strlen(str) - 1;
+    while (end && isspace(*end))
+      end--;
+    *(end + 1) = '\0';
 }
 
 int load_dictionary(const char *filename, HashTable *table,
@@ -25,7 +34,23 @@ int load_dictionary(const char *filename, HashTable *table,
   int in_entry = 0;
 
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    while (fgets(line, sizeof(line), file)) {
+      if(line[0] != '#')
+        continue;
+      char *key = line + 1;
+      trim(key);
+      strcpy(current_word, key);
+      
+      if(fgets(current_translation, sizeof(current_translation), file) == NULL)
+        continue;
+      char *ptr = strstr(current_translation, "Trans:");
+      if(ptr == NULL)
+        continue;
+      char *value = ptr + strlen("Trans:");
+      trim(value);
+      hash_table_insert(table, current_word, value);
+      (*dict_count)++;
+    }
 
   fclose(file);
   return 0;
