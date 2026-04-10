@@ -57,38 +57,35 @@ int hash_table_insert(HashTable *table, const char *key, const char *value) {
   HashNode *node = table->buckets[hash];
 
   // TODO: 在这里添加你的代码
+  // flam: 这里直接按 19 题的 insert 逻辑迁移，查重后拒绝重复 key，再做头插。
+  HashNode *head = table->buckets[hash];
+
   while (node != NULL) {
     if (strcmp(node->key, key) == 0) {
-      char *new_value = malloc(strlen(value) + 1);
-      if (new_value == NULL) {
-        return 0;
-      }
-      strcpy(new_value, value);
-      free(node->value);
-      node->value = new_value;
-      return 1;
+      return 0;
     }
     node = node->next;
   }
 
   HashNode *new_node = malloc(sizeof(HashNode));
-  if (new_node == NULL) {
+  if (!new_node) {
     return 0;
   }
 
-  new_node->key = malloc(strlen(key) + 1);
-  new_node->value = malloc(strlen(value) + 1);
-  if (new_node->key == NULL || new_node->value == NULL) {
-    free(new_node->key);
-    free(new_node->value);
+  new_node->key = strdup(key);
+  if (!new_node->key) {
     free(new_node);
     return 0;
   }
 
-  strcpy(new_node->key, key);
-  strcpy(new_node->value, value);
-  // 🔥 flam: 词条直接挂到对应 bucket 链表头部，查找逻辑会先命中最新节点。
-  new_node->next = table->buckets[hash];
+  new_node->value = strdup(value);
+  if (!new_node->value) {
+    free(new_node->key);
+    free(new_node);
+    return 0;
+  }
+
+  new_node->next = head;
   table->buckets[hash] = new_node;
 
   return 1;
