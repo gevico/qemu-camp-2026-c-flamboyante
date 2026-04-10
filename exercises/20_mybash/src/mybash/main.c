@@ -100,7 +100,6 @@ int parse_input(char *input, char **args) {
             args[i++] = strdup(arg_buf);
             arg_buf_idx = 0;
           }
-          continue;
         }
         else if(c == '"')
         {
