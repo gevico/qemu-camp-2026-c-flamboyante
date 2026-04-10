@@ -39,6 +39,7 @@ int __cmd_myfile(const char* filename) {
     printf("filepath: %s\n", filepath);
 
     // TODO: 在这里添加你的代码
+    // flam: 这里直接复用 17 题的 ELF 头读取和魔数校验逻辑，只适配成单文件版本。
     fd = open(filepath, O_RDONLY);
     if (fd < 0) {
         perror("open");
@@ -49,7 +50,6 @@ int __cmd_myfile(const char* filename) {
         close(fd);
         return 1;
     }
-    // 🔥 flam: 直接复用 17 题的 ELF 头校验逻辑，只适配成单文件版本。
     if (memcmp(ehdr.e_ident, ELFMAG, SELFMAG) != 0) {
         fprintf(stderr, "%s is not an ELF file\n", filepath);
         close(fd);

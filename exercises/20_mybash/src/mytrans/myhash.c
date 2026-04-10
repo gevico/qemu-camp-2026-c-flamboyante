@@ -100,6 +100,7 @@ const char *hash_table_lookup(HashTable *table, const char *key) {
   HashNode *node = table->buckets[hash];
 
   // TODO: 在这里添加你的代码
+  // flam: 这里直接沿着 bucket 链表逐个比 key，命中就返回对应 value。
   while (node != NULL) {
     if (strcmp(node->key, key) == 0) {
       return node->value;

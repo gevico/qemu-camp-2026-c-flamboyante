@@ -14,10 +14,7 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
     *new_str = NULL;
     
     // TODO: 在这里添加你的代码
-    if (cmd[0] != 's' || cmd[1] != '/') {
-        return -1;
-    }
-
+    // flam: 这里按 16 题的切片逻辑直接拆 s/old/new/ 这三段。
     const char *first_slash_begin = &cmd[2];
     const char *first_slash_end = strchr(first_slash_begin, '/');
     if (first_slash_end == NULL) {
@@ -30,19 +27,17 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
         return -1;
     }
 
-    *old_str = malloc((size_t)(first_slash_end - first_slash_begin) + 1);
-    *new_str = malloc((size_t)(second_slash_end - second_slash_begin) + 1);
-    if (*old_str == NULL || *new_str == NULL) {
-        free(*old_str);
-        free(*new_str);
-        *old_str = NULL;
-        *new_str = NULL;
+    if ((*old_str = malloc((size_t)(first_slash_end - first_slash_begin) + 1)) == NULL) {
         return -1;
     }
-
-    // 🔥 flam: 按 16 题的切片方式把 s/old/new/ 拆成两段动态字符串。
     memcpy(*old_str, first_slash_begin, (size_t)(first_slash_end - first_slash_begin));
     (*old_str)[first_slash_end - first_slash_begin] = '\0';
+
+    if ((*new_str = malloc((size_t)(second_slash_end - second_slash_begin) + 1)) == NULL) {
+        free(*old_str);
+        *old_str = NULL;
+        return -1;
+    }
     memcpy(*new_str, second_slash_begin, (size_t)(second_slash_end - second_slash_begin));
     (*new_str)[second_slash_end - second_slash_begin] = '\0';
 
@@ -56,6 +51,7 @@ void replace_first_occurrence(char* str, const char* old, const char* new) {
     }
     
     // TODO: 在这里添加你的代码
+    // flam: 这里直接沿用 16 题的第一次匹配替换逻辑。
     char *found = strstr(str, old);
     if (found == NULL) {
         return;
@@ -63,7 +59,6 @@ void replace_first_occurrence(char* str, const char* old, const char* new) {
 
     size_t len_old = strlen(old);
     size_t len_new = strlen(new);
-    // 🔥 flam: 复用 16 题的核心替换逻辑，先腾位置再覆盖新串。
     memmove(found + len_new, found + len_old, strlen(found + len_old) + 1);
     memcpy(found, new, len_new);
 }

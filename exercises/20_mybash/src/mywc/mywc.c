@@ -27,6 +27,7 @@ void add_word(WordCount **hash_table, const char *word) {
   WordCount *entry = hash_table[index];
 
   // TODO: 在这里添加你的代码
+  // flam: 这里按 18 题的链表查重 + 头插写法迁移。
   while (entry != NULL) {
     if (strcmp(entry->word, word) == 0) {
       entry->count++;
@@ -35,16 +36,15 @@ void add_word(WordCount **hash_table, const char *word) {
     entry = entry->next;
   }
 
-  entry = malloc(sizeof(WordCount));
-  if (entry == NULL) {
+  WordCount *new_word = malloc(sizeof(WordCount));
+  if (new_word == NULL) {
     return;
   }
 
-  strcpy(entry->word, word);
-  entry->count = 1;
-  // 🔥 flam: 直接沿用 18 题的头插法，把新单词挂到对应 bucket 链表前面。
-  entry->next = hash_table[index];
-  hash_table[index] = entry;
+  strcpy(new_word->word, word);
+  new_word->count = 1;
+  new_word->next = hash_table[index];
+  hash_table[index] = new_word;
 }
 
 // 打印单词统计结果
@@ -53,8 +53,12 @@ void print_word_counts(WordCount **hash_table) {
   printf("======================\n");
 
   // TODO: 在这里添加你的代码
+  // flam: 这里按 18 题一样逐个 bucket 扫链表并打印统计结果。
   for (int i = 0; i < HASH_SIZE; i++) {
     WordCount *entry = hash_table[i];
+    if (entry == NULL) {
+      continue;
+    }
     while (entry != NULL) {
       printf("%-21s%d\n", entry->word, entry->count);
       entry = entry->next;
