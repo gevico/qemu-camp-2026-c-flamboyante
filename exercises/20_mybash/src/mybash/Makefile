@@ -22,7 +22,18 @@ TARGET_PATH := $(BINDIR)/$(TARGET)
 all: $(TARGET_PATH)
 
 # TODO: 在这里添加你的代码
-# I AM NOT DONE
+# 🔥 flam: mybash 负责把自己的对象文件编出来，并链接前面几个子模块的静态库。
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
+
+$(BINDIR):
+	@mkdir -p $(BINDIR)
+
+$(OBJDIR)/%.o: %.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TARGET_PATH): $(OBJS) | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LINKLIBS) -lmysed -lmyfile -lmywc -lmytrans
 
 clean:
 	@rm -rf $(OBJDIR)/*.o $(TARGET_PATH)

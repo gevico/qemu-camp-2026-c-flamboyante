@@ -59,7 +59,16 @@ int is_builtin_command(char **args) {
     return 0;
 
   // TODO: 在这里添加你的代码
-  // I AM NOT DONE
+  // 🔥 flam: 这里只补最小内建命令分发，保持和原题骨架边界一致。
+  if (strcmp(args[0], "cd") == 0) {
+    execute_cd(args);
+    return 1;
+  }
+
+  if (strcmp(args[0], "exit") == 0) {
+    execute_exit();
+    return 1;
+  }
 
   return 0;
 }
@@ -78,6 +87,8 @@ int parse_input(char *input, char **args) {
       char c = *buf;
 
         // TODO: 在这里添加你的代码
+        // uu: 这里留给你自己完成，目标是支持空格分词、双引号参数、正确填充 args[]、
+        // uu: 末尾补 NULL，并注意别越界也别引入不必要的内存泄漏。
         // I AM NOT DONE
 
       buf++;
