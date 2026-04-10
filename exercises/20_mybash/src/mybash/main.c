@@ -67,7 +67,6 @@ int is_builtin_command(char **args) {
 
   if (strcmp(args[0], "exit") == 0) {
     execute_exit();
-    return 1;xit();
     return 1;
   }
 
