@@ -67,6 +67,7 @@ int is_builtin_command(char **args) {
 
   if (strcmp(args[0], "exit") == 0) {
     execute_exit();
+    return 1;xit();
     return 1;
   }
 
@@ -83,14 +84,47 @@ int parse_input(char *input, char **args) {
 
   memset(arg_buf, 0, sizeof(arg_buf));
 
-  while (*buf != '\0' && i < MAX_ARGS - 1) {
+  while (*buf != '\0' && i < MAX_ARGS - 1) 
+  {
       char c = *buf;
 
         // TODO: 在这里添加你的代码
         // uu: 这里留给你自己完成，目标是支持空格分词、双引号参数、正确填充 args[]、
         // uu: 末尾补 NULL，并注意别越界也别引入不必要的内存泄漏。
-        // I AM NOT DONE
-
+      if(in_quotes == 0) // 不在引号中
+      {
+        if(c == ' ')
+        {
+          if(arg_buf_idx > 0)
+          {
+            arg_buf[arg_buf_idx] = '\0';
+            args[i++] = strdup(arg_buf);
+            arg_buf_idx = 0;
+          }
+          continue;
+        }
+        else if(c == '"')
+        {
+          in_quotes = 1;
+        }
+        else
+        {
+          if(arg_buf_idx < MAX_INPUT - 1)
+            arg_buf[arg_buf_idx++] = c;
+        }
+      }
+      else // 在引号中
+      {
+        if(c == '"')
+        {
+          in_quotes = 0;
+        }
+        else
+        {
+          if(arg_buf_idx < MAX_INPUT - 1)
+            arg_buf[arg_buf_idx++] = c;
+        }
+      }
       buf++;
   }
 
