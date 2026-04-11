@@ -66,16 +66,30 @@ void josephus_problem(int n, int k, int m) {
         if (m == 1) {
             // m==1 时当前节点直接出列
             // TODO: 在这里添加你的代码
-            // I AM NOT DONE
         }
-
+        else
+        {
+            for (int i = 0; i < m-1; i++)
+            {
+                current = next_wrap(current);
+                if (current == NULL) {
+                    break;
+                }
+            }
+        }
+        print_item(current);
+        link tmp = next_wrap(current);
+        delete(current);
+        if (tmp == NULL) {
+            break;
+        }
+        current = tmp;
         // 数到 m 的那个人出列：从 current 开始走 m-1 步，落在第 m 个节点
         // TODO: 在这里添加你的代码
-        // I AM NOT DONE
-
+ 
         // 此时 current 指向要出列的人
         // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+        
     }
 
     printf("\n");
