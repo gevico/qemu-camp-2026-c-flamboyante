@@ -2,27 +2,27 @@
 #include <stdlib.h>
 #include <execinfo.h>
 
-#ifdef TODO
+#ifdef DEBUG_LEVEL
 
-#define DEBUG_PRINT(fmt, ...) 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+#define DEBUG_PRINT(fmt, ...)              \
+    do {                                   \
+        if (DEBUG_LEVEL == 3) {            \
+            void *stack[16];               \
+            int depth = backtrace(stack, 16); \
+            backtrace_symbols_fd(stack, depth, 1); \
+        } else if (DEBUG_LEVEL == 2) {     \
+            printf("DEBUG: func=%s, line=%d, " fmt, \
+                   __func__, __LINE__, ##__VA_ARGS__); \
+        } else {                           \
+            printf("DEBUG: func=%s, line=%d", __func__, __LINE__); \
+        }                                  \
+    } while (0)
 
 #else
 
-#define DEBUG_PRINT(fmt, ...) do {} while (0)
+#define DEBUG_PRINT(fmt, ...) do { printf(fmt, ##__VA_ARGS__); } while (0)
 
 #endif
-
-
-
-
-
-
-
-
-
-
 
 
 

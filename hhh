@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+set -u
+set -o pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EXERCISES_DIR="${PROJECT_ROOT}/exercises"
+
+usage() {
+    echo "用法: hhh <题号|题目目录名> [程序参数...]"
+    echo "示例:"
+    echo "  hhh 26"
+    echo "  hhh 26_hash_counter"
+    echo "  hhh 26 input.txt"
+}
+
+if [ ! -d "${EXERCISES_DIR}" ]; then
+    echo "❌ 错误: 未找到 exercises 目录: \"${EXERCISES_DIR}\""
+    exit 1
+fi
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+query="$1"
+shift
+
+exercise_dir=""
+if [[ "${query}" =~ ^[0-9]+$ ]]; then
+    query_num=$((10#${query}))
+    query_prefix="$(printf "%02d" "${query_num}")"
+    match_line="$(find "${EXERCISES_DIR}" -mindepth 1 -maxdepth 1 -type d -name "${query_prefix}_*" | sort | head -n 1)"
+    if [ -z "${match_line}" ]; then
+        echo "❌ 错误: 未找到第 ${query_num} 题"
+        exit 1
+    fi
+    exercise_dir="${match_line}"
+elif [ -d "${EXERCISES_DIR}/${query}" ]; then
+    exercise_dir="${EXERCISES_DIR}/${query}"
+else
+    echo "❌ 错误: 未找到题目目录 \"${query}\""
+    exit 1
+fi
+
+exercise_name="$(basename "${exercise_dir}")"
+default_source="${exercise_dir}/${exercise_name}.c"
+default_executable="${exercise_dir}/${exercise_name}"
+
+build_log="$(mktemp -t hhh_build_log.XXXXXX)"
+trap 'rm -f "${build_log}"' EXIT
+
+echo "🏃 题目: ${exercise_name}"
+echo "📁 目录: \"${exercise_dir}\""
+echo "=============================="
+echo "🔨 开始编译..."
+
+if [ -f "${exercise_dir}/Makefile" ]; then
+    make -C "${exercise_dir}" 2>&1 | tee "${build_log}"
+    build_status=${PIPESTATUS[0]}
+else
+    if [ ! -f "${default_source}" ]; then
+        echo "❌ 错误: 未找到源码文件 \"${default_source}\""
+        exit 1
+    fi
+    gcc -Wall -Wextra -std=c11 -g -O0 -o "${default_executable}" "${default_source}" 2>&1 | tee "${build_log}"
+    build_status=${PIPESTATUS[0]}
+fi
+
+warning_count="$(rg -i -N "warning:" "${build_log}" | wc -l | tr -d ' ')"
+error_count="$(rg -i -N "error:" "${build_log}" | wc -l | tr -d ' ')"
+
+echo "------------------------------"
+echo "📊 编译信息: warnings=${warning_count}, errors=${error_count}"
+
+if [ "${build_status}" -ne 0 ]; then
+    echo "❌ 编译失败，已停止运行。"
+    exit "${build_status}"
+fi
+
+executable="${default_executable}"
+if [ ! -x "${executable}" ]; then
+    newest_exec="$(find "${exercise_dir}" -maxdepth 1 -type f -executable -printf "%T@ %p\n" | sort -nr | head -n 1 | cut -d ' ' -f 2-)"
+    if [ -n "${newest_exec}" ] && [ -x "${newest_exec}" ]; then
+        executable="${newest_exec}"
+    fi
+fi
+
+if [ ! -x "${executable}" ]; then
+    echo "⚠️ 编译成功，但未找到可执行文件，可能该题目只产出库文件。"
+    exit 0
+fi
+
+echo "✅ 编译成功"
+echo "🚀 开始运行: \"${executable}\""
+echo "------------------------------"
+
+(
+    cd "${exercise_dir}" || exit 1
+    "./$(basename "${executable}")" "$@"
+)
+
+run_status=$?
+echo "------------------------------"
+if [ "${run_status}" -eq 0 ]; then
+    echo "✨ 运行完成"
+else
+    echo "⚠️ 程序退出码: ${run_status}"
+fi
+
+exit "${run_status}"
