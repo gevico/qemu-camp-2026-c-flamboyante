@@ -19,16 +19,34 @@ static void josephus_problem(int n, int k, int m) {
     // prev 指向 current 的前一个节点
     Node* current = head;
     Node* prev = head;
-    while (prev->next != head) prev = prev->next;
+    while (prev->next != head) 
+        prev = prev->next; // flam 找到尾节点
 
     // 起始位置移动到第 k 个
     for (int i = 1; i < k; ++i) {
         // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+        prev = current;
+        current = current->next;
     }
 
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // 先保存下一个节点，再删除当前节点
+    while(current->next != current)
+    {
+        for(int i = 0; i < m-1; i++)
+        {
+            prev = current;
+            current = current->next;
+        }
+        printf("%d ", current->id);
+        Node* next = current->next;  
+        prev->next = next;
+        free(current);                
+        current = next; 
+    }
+    printf("%d", current->id);
+    free(current);
+             
     
     printf("\n");
 }
