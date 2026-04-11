@@ -37,6 +37,9 @@ link search(unsigned char key) {
 // 在链表头部插入节点
 void insert(link p) {
     // TODO: 在这里添加你的代码
+    if (p == NULL) {
+        return;
+    }
     p->next = head;
     head = p;
 }
@@ -90,7 +93,7 @@ link pop(void) {
     }
     link p = head;
     head = head->next;
-    free_node(p);
+    p->next = NULL;
     return p;
 }
 
