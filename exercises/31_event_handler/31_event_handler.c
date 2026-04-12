@@ -28,7 +28,14 @@ static void* g_callback_args[EVENT_MAX] = {0};
  */
 void register_event(enum EVENT_TYPE type, void (*callback)(void*), void* arg) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(type >= EVENT_MAX) {
+        return;
+    }
+    if(callback == NULL) {
+        return;
+    }
+    g_callbacks[type] = callback;
+    g_callback_args[type] = arg;
 }
 
 /*
@@ -36,7 +43,13 @@ void register_event(enum EVENT_TYPE type, void (*callback)(void*), void* arg) {
  */
 void trigger_event(enum EVENT_TYPE type) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(type >= EVENT_MAX) {
+        return;
+    }
+    if(g_callbacks[type] == NULL) {
+        return;
+    }
+    g_callbacks[type](g_callback_args[type]);
 }
 
 /*
@@ -48,6 +61,16 @@ static void on_event_a(void* arg) {
         printf("%s\n", msg);
     }
 }
+
+//TODO:b
+static void on_event_b(void* arg) {
+    const int* msg = (const int*)arg;
+    if (msg) {
+        printf("%d\n", *msg);
+    }
+}
+
+
 
 int main(void) {
     /* 期待输出：Event A triggered */
