@@ -33,7 +33,7 @@ typedef struct {
 
 static unsigned hash_int(int key) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    
 }
 
 static HashEntry* hash_find(LRUCache* c, int key, HashEntry*** pprev_next) {
@@ -64,17 +64,54 @@ static LRUNode* list_pop_tail(LRUCache* c) {
 /* LRU 接口实现 */
 static LRUCache* lru_create(int capacity) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    LRUCache* c = malloc(sizeof(LRUCache));
+    if (!c) {
+        fprintf(stderr, "创建 LRU 失败\n");
+        return NULL;
+    }
+    c->capacity = capacity;
+    c->size = 0;
+    c->head = NULL;
+    c->tail = NULL;
+    c->bucket_count = capacity * 2;
+    c->buckets = malloc(c->bucket_count * sizeof(HashEntry*));
+    if (!c->buckets) {
+        fprintf(stderr, "创建 LRU 失败\n");
+        free(c);
+        return NULL;
+    }
+    return c;
 }
 
 static void lru_free(LRUCache* c) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!c) {
+        return;
+    }
+    for (size_t i = 0; i < c->bucket_count; i++) {
+        HashEntry* p = c->buckets[i];
+        while (p) {
+            HashEntry* next = p->next;
+            free(p);
+            p = next;
+        }
+    }
+    free(c->buckets);
+    free(c);
 }
 
 static int lru_get(LRUCache* c, int key, int* out_value) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!c) {
+        return 0;
+    }
+    HashEntry* p = hash_find(c, key, &p);
+    if (!p) {
+        return 0;
+    }
+    *out_value = p->node->value;
+    list_move_to_head(c, p->node);
+    return 1;
 }
 
 static void lru_put(LRUCache* c, int key, int value) {
