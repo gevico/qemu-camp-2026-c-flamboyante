@@ -19,23 +19,22 @@ int main() {
     
     for (int i = 0; i < 3; i++) 
     {
-	    // TODO: 在这里添加你的代码
-        if(!(students[i] = malloc(sizeof(Student))))
-        {
+        students[i] = malloc(sizeof(Student));
+        if (students[i] == NULL) {
             printf("内存分配失败\n");
-            for(int j = 0; j < i; j++)
-            {
+            for (int j = 0; j < i; j++) {
                 free(students[j]);
             }
             fclose(file);
             return 1;
         }
 
-        if(fscanf(file, "%s %s %d", students[i]->id, students[i]->name, &students[i]->age) != 3)
-        {
-            printf("读取文件失败\n");
-            for(int j = 0; j <= i; j++)
-            {
+        if (fscanf(file, "%19s %49s %d",
+                   students[i]->id,
+                   students[i]->name,
+                   &students[i]->age) != 3) {
+            printf("文件格式错误\n");
+            for (int j = 0; j <= i; j++) {
                 free(students[j]);
             }
             fclose(file);
