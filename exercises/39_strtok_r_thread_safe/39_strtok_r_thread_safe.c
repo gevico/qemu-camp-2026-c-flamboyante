@@ -11,13 +11,54 @@
 /* 判断字符 c 是否在分隔符集合 delim 中 */
 static int is_delim(char c, const char *delim) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(strchr(delim, c) != NULL)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 /* 线程安全版本：通过 saveptr 维护调用状态，不使用静态变量 */
 char *strtok_r(char *str, const char *delim, char **saveptr) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(str == NULL && *saveptr == NULL)
+    {
+        return NULL;
+    }
+    char *pre_str = NULL;
+    char *token = NULL;
+    if(*saveptr == NULL)
+    {
+        *saveptr = str;
+    }
+    pre_str = *saveptr;
+
+    int start = 0;
+    int end = 0;
+    while(is_delim(pre_str[start], delim))
+    {
+        start++;
+    }
+
+    for(end = start; end < strlen(pre_str); end++)
+    {
+        if(is_delim(pre_str[end], delim))
+        {
+            break;
+        }
+    }
+    if(end == strlen(pre_str))
+    {
+        token = pre_str;
+        *saveptr = NULL;
+    }
+    else
+    {
+        token = pre_str + start;
+        pre_str[end] = '\0';
+        *saveptr = pre_str + end + 1;
+    }
+    return token;
 }
 
 int main(void) {

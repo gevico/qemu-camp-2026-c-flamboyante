@@ -21,24 +21,77 @@ typedef struct {
 
 static int rb_init(ring_buffer_t *rb, size_t capacity) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(rb == NULL)
+    {
+        return -1;
+    }
+    rb->capacity = capacity;
+    rb->buf = malloc(sizeof(int) * capacity);
+    if(rb->buf == NULL)
+    {
+        return -1;
+    }
+    rb->head = 0;
+    rb->tail = 0;
+    rb->count = 0;
+    pthread_mutex_init(&rb->mtx, NULL);
+    pthread_cond_init(&rb->not_full, NULL);
+    pthread_cond_init(&rb->not_empty, NULL);
+    return 0;
 }
 
 static void rb_destroy(ring_buffer_t *rb) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(rb == NULL)
+    {
+        return;
+    }
+    free(rb->buf);
+    pthread_mutex_destroy(&rb->mtx);
+    pthread_cond_destroy(&rb->not_full);
+    pthread_cond_destroy(&rb->not_empty);
+    if(rb->buf != NULL)
+    {
+        return;
+    }
+    rb->buf = NULL;
 }
 
 /* 入队：满则等待 not_full */
 static void rb_push(ring_buffer_t *rb, int val) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(rb == NULL)
+    {
+        return;
+    }
+    pthread_mutex_lock(&rb->mtx);
+    while(rb->count >= rb->capacity) {
+        pthread_cond_wait(&rb->not_full, &rb->mtx);
+    }
+    rb->buf[rb->tail] = val;
+    rb->tail = (rb->tail + 1) % rb->capacity;
+    rb->count++;
+    pthread_cond_signal(&rb->not_empty);
+    pthread_mutex_unlock(&rb->mtx);
 }
 
 /* 出队：空则等待 not_empty */
 static int rb_pop(ring_buffer_t *rb, int *out) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if(rb == NULL || out == NULL)
+    {
+        return -1;
+    }
+    pthread_mutex_lock(&rb->mtx);
+    while(rb->count == 0) {
+        pthread_cond_wait(&rb->not_empty, &rb->mtx);
+    }
+    *out = rb->buf[rb->head];
+    rb->head = (rb->head + 1) % rb->capacity;
+    rb->count--;
+    pthread_cond_signal(&rb->not_full);
+    pthread_mutex_unlock(&rb->mtx);
+    return 0;
 }
 
 typedef struct {
@@ -54,12 +107,25 @@ typedef struct {
 
 static void *producer(void *arg) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    producer_arg_t *pa = (producer_arg_t *)arg;
+    for(size_t i = 0; i < pa->n; i++)
+    {
+        rb_push(pa->rb, pa->data[i]);
+    }
+    return NULL;
 }
 
 static void *consumer(void *arg) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    consumer_arg_t *ca = (consumer_arg_t *)arg;
+    for(size_t i = 0; i < ca->n; i++)
+    {
+        int val;
+        rb_pop(ca->rb, &val);
+        printf("%d,", val);
+    }
+    printf("\n");
+    return NULL;
 }
 
 int main(void) {
